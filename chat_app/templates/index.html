@@ -7,6 +7,47 @@
     <title>Chat App</title>
 </head>
 <body>
-    <h1>Testing</h1>
+    <h1>Chat Room {{room_name}}</h1>
+
+    <div id="chat-box"></div>
+
+    <form id="form">
+        <input type="text" name="message" id="message" placeholder="Type your message here...">
+        <input type="submit" value="Send">
+
+    </form>
+
+    <script type="text/javascript">
+        let url = `ws://${window.location.host}/ws/socket-server`;
+        let chatSocket = new WebSocket(url);
+
+        chatSocket.onmessage = function(e) {
+            let data = JSON.parse(e.data);
+            console.log("Data: ", data);
+
+            if(data.type == "chat"){
+                let message = data.message;
+                let html = `<div>
+                    <p>${message}</p>
+                </div>`;
+                document.getElementById("chat-box").innerHTML += html;
+            }
+        }
+        console.log(chatSocket)
+
+        let form = document.getElementById("form");
+
+        form.addEventListener("submit", function(e){
+            e.preventDefault();
+            let message = document.getElementById("message").value;
+            chatSocket.send(JSON.stringify({
+                "message":message
+            }));
+
+            form.reset()
+        })
+
+
+    </script>
 </body>
 </html>
